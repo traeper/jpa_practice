@@ -1,0 +1,29 @@
+spring.jpa.properties.hibernate.hql.bulk_id_strategy: org.hibernate.hql.spi.id.cte.CteValuesListBulkIdStrategy
+
+spring:
+  config:
+    activate:
+      on-profile: local
+
+spring.jpa:
+  hibernate:
+    ddl-auto: none
+  database: mysql
+  database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
+  properties:
+    hibernate:
+      show_sql: true
+      generate_statistics: false
+      format_sql: false
+      jdbc.batch_size: 50
+      order_inserts: true
+  generate-ddl: false
+  show-sql: true
+spring.datasource:
+  hikari:
+    username: root
+    password: 1234
+    maximum-pool-size: 20
+    max-lifetime: 28730000 # mysql wait_timeout 28800 - 30 sec
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  url: jdbc:mysql://localhost:3306/jpa_practice?useLegacyDatetimeCode=false&useUnicode=yes&characterEncoding=UTF-8&serverTimezone=Asia/Seoul
