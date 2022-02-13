@@ -1,12 +1,12 @@
-# Hibernate inheritance bulk-id strategies
-Hibernate에서 JOINED Inheritance Strategy를 사용한 경우 batch delete 구현 방법을 다뤄봅니다. Reference에 있는 Hibernate post를 보시면 좀더 상세한 글을 확인할 수 있습니다.
+# JPA inheritance bulk-id strategies
+JPA에서 Inheritance를 사용한 경우 batch delete 구현 방법을 다뤄봅니다. Reference에 있는 Hibernate post를 보시면 좀더 상세한 글을 확인할 수 있습니다.
 
 * 테스트 환경
   * H2 DB
   * MySQL 5.7.24
 
 ## class 상속 구성
-Person 클래스를 상속하는 Doctor, Student가 있습니다. 실무 경험 상 JOINED Inheritance를 많이 사용하게 되는 것 같습니다.
+Person 클래스를 상속하는 Doctor, Student가 있습니다. JOINED Inheritance를 사용하였습니다.
 
 ```kotlin
 @Entity(name = "person")
