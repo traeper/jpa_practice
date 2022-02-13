@@ -64,9 +64,6 @@ Hibernate에서는 상속 관계에서 최적화를 위해 HT_를 prefix로 하�
 실제로 수행되는 쿼리들을 살펴보면 HT_person 임시 테이블을 만든 다음 테이블 갯수 만큼의 bulk delete를 수행하는 것을 볼 수 있습니다.
 마지막으로 임시 테이블을 삭제하면서 끝나네요.
 
-![](MultiTableBulkIdStrategy_implementations.png)
-궁금해서 찾아보니 Hibernate에서는 MultiTableBulkIdStrategy 인터페이스로 추상화하여 이런 기능들을 제공하고 있습니다. 
-
 ```java
 // H2Dialect.class
 public MultiTableBulkIdStrategy getDefaultMultiTableBulkIdStrategy() {
@@ -96,21 +93,27 @@ Hibernate: drop temporary table HT_person
 ```
 
 ## 임시 테이블을 만들 수 없는 경우 선택 가능한 방법 
-만약 DBMS 등에서 [HHH-11262 - Insufficient Privilege](https://hibernate.atlassian.net/browse/HHH-11262) 등의 이유로 임시 테이블을 생성할 수 없을 때 사용가능한 전략 4가지가 있습니다.
+만약 DBMS에서 [HHH-11262 - Insufficient Privilege](https://hibernate.atlassian.net/browse/HHH-11262) 등의 이유로 임시 테이블을 생성할 수 없을 때 사용가능한 전략 4가지가 있습니다.
 다만 'IN' 절을 사용하는 전략은 Composite Identifiers만 지원하므로 PostgreSQL에서만 지원된다고 하네요.
-실제로 사용하시는 DBMS에서 지원하는 전략을 선택해서 활용하시면 될 것 같습니다. 전략과 DBMS 궁합은 Reference 링크를 참고해주세요. 아래 전략들은 모두 MultiTableBulkIdStrategy을 구현(implementation)하고 있습니다.
+실제로 사용하시는 DBMS에서 지원하는 전략을 선택해서 활용하시면 될 것 같습니다. 전략과 DBMS 궁합은 Reference 링크를 참고해주세요.
 
 * InlineIdsInClauseBulkIdStrategy : PostgreSQL에서만 작동
 * InlineIdsSubSelectValueListBulkIdStrategy : PostgreSQL에서만 작동
-* InlineIdsOrClauseBulkIdStrategy : MySQL에서 유일하게 작동하였음.
+* InlineIdsOrClauseBulkIdStrategy : Oracle, SQL Server, MySQL, and PostgreSQL 모두 작동한다는 장점이 있음.
 * CteValuesListBulkIdStrategy : CTE(Common Table Expressions) 지원해야하며 PostgreSQL에서만 작동
+
+![](MultiTableBulkIdStrategy_implementations.png)<br>
+위 전략들은 모두 MultiTableBulkIdStrategy을 구현(implementation)하고 있습니다.
+
 
 ### InlineIdsInClauseBulkIdStrategy
 Composite Identifiers가 아니다보니 H2 DB와 제 로컬 mysql 모두 아래처럼 UnsupportedOperationException이 발생해서 사용할 수 없네요.
-`The InlineIdsIdsInClauseDeleteHandlerImpl can only be used with Dialects that support IN clause row-value expressions (for composite identifiers)!`
+```
+The InlineIdsIdsInClauseDeleteHandlerImpl can only be used with Dialects that support IN clause row-value expressions (for composite identifiers)!
+```
 
-InlineIdsSubSelectValueListBulkIdStrategy도 마찬가지네요.
-
+### InlineIdsSubSelectValueListBulkIdStrategy
+InlineIdsInClauseBulkIdStrategy와 마찬가지로 Composite Identifiers가 아니여서 동작하지 않습니다.
 
 ### InlineIdsOrClauseBulkIdStrategy
 아래처럼 select로 먼저 조건을 만족하는 id를 찾은 이후 delete를 수행하는 것을 확인할 수 있습니다.
@@ -124,9 +127,11 @@ Hibernate: delete from person where (id = 2) or (id = 3)
 ```
 
 ### CteValuesListBulkIdStrategy
-제 MySQL 환경(MySQL5InnoDBDialect)에서는 CTE가 지원되지 않아서 역시 UnsupportedOperationException이 발생하네요.
+MySQL5InnoDBDialect에서는 CTE가 지원되지 않아서 역시 UnsupportedOperationException이 발생하네요.
 그런데 reference를 보니 역시 'IN' 절을 사용하기 때문에 PostgreSQL에서만 작동한다고 합니다. 
-`UnsupportedOperationException: The CteValuesListDeleteHandlerImpl can only be used with Dialects that support CTE that can take UPDATE or DELETE statements as well!`
+```
+UnsupportedOperationException: The CteValuesListDeleteHandlerImpl can only be used with Dialects that support CTE that can take UPDATE or DELETE statements as well!
+```
 
 ## reference
 * Hibernate post: https://in.relation.to/2017/02/01/non-temporary-table-bulk-id-strategies/

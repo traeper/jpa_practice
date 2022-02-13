@@ -1,0 +1,1 @@
+[JPA Inheritance Bulk Delete.md](src/main/kotlin/com/traeper/jpa_practice/inheritance/bulk_delete/README.md)

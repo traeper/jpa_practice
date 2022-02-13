@@ -1,4 +1,4 @@
-spring.jpa.properties.hibernate.hql.bulk_id_strategy: org.hibernate.hql.spi.id.cte.CteValuesListBulkIdStrategy
+spring.jpa.properties.hibernate.hql.bulk_id_strategy: org.hibernate.hql.spi.id.inline.InlineIdsOrClauseBulkIdStrategy
 
 spring:
   config:
