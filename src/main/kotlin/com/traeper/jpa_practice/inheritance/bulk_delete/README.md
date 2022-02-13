@@ -82,6 +82,7 @@ public MultiTableBulkIdStrategy getDefaultMultiTableBulkIdStrategy() {
 
 ### mysql 테스트 결과 로그
 실제 mysql(5.7.24)에서도 global temporary table 전략은 잘 돌아가는 것을 확인헀습니다.
+다만 데이터가 존재하지 않아도 delete 쿼리들은 항상 수행이 되네요.
 
 ```
 Hibernate: create temporary table if not exists HT_person (id bigint not null) 
